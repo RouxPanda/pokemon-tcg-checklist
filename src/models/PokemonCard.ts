@@ -122,7 +122,7 @@ interface PokemonCard {
 
 // Modèle pour la réponse API complète
 interface ApiResponse<T> {
-    data: T[];
+    data: T;
     page: number;
     pageSize: number;
     count: number;
@@ -131,8 +131,11 @@ interface ApiResponse<T> {
 
 interface CardInCollection {
     id: string;
-    quantity: number;
-    condition: CardCondition;
+    rarity:string;
+    stock: {
+        quantity: number;
+        condition: CardCondition;
+    }[]
 }
 
 interface Collection {
@@ -141,6 +144,7 @@ interface Collection {
     series: string;
     printedTotal: number,
     total: number,
+    percentage: number,
     legalities: {
         unlimited: string,
         standard: string,

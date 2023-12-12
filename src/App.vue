@@ -32,10 +32,13 @@ const thisYear = new Date().getFullYear()
     <div
       class="container relative mx-auto bg-white dark:bg-slate-800 shadow-xl shadow-slate-700/10 ring-1 ring-gray-900/5"
     >
+    
       <header class="px-4 pt-6 prose-sm md:px-6 md:prose">
-        <h1>Pokemon Card list</h1>
+        <router-link to="/">
+          <h1>Pokemon Card list</h1>
+        </router-link>
         <button @click="store.toggleTheme">Basculer le thème</button>
-        <div>{{store.isDarkTheme}}</div>
+        <div>{{ store.isDarkTheme }}</div>
       </header>
       <main>
         <router-view></router-view>

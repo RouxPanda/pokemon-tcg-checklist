@@ -13,18 +13,18 @@ export const useStore = defineStore('main', {
     version: versionString,
     isInitialized: false,
     isDarkTheme: false,
-    cards: [] as CardInCollection[],
+    cards: {} as Record<string, CardInCollection[]>,
   }),
 
   actions: {
     initApp() {
       this.isInitialized = true
-      this.cards = JSON.parse(localStorage.getItem('cards') || '[]');
+      var local: string | null = "";
+      if (local = localStorage.getItem('cards'))
+      {
+        this.cards = JSON.parse(local);
+      }
       console.log(this.cards)
-    },
-
-    increment(value = 1) {
-      this.count += value
     },
 
     goToDemo(event: Event) {
@@ -36,25 +36,64 @@ export const useStore = defineStore('main', {
       this.isDarkTheme = !this.isDarkTheme;
     },
 
-    addCard(card: CardInCollection) {
-      this.cards.push(card);
-    },
-
-    updateCardStock(id: string, quantity: number, condition: CardCondition) {
-      const cardIndex = this.cards.findIndex(card => card.id === id);
-      if (cardIndex !== -1) {
-        this.cards[cardIndex].quantity = quantity;
-        this.cards[cardIndex].condition = condition;
-      } else {
-        this.cards.push({ id, quantity: quantity, condition: condition } as CardInCollection)
+    updateCardStock(collectionKey: string, id: string, quantity: number, condition: CardCondition, rarity: string) {
+      // Vérifier si la clé de collection existe déjà
+      if (!this.cards[collectionKey]) {
+        this.cards[collectionKey] = [];
       }
-      localStorage.setItem('cards', JSON.stringify(this.cards))
+    
+      // Rechercher la carte dans le tableau correspondant à la clé de collection
+      const cardIndex = this.cards[collectionKey].findIndex(card => card.id === id && card.rarity == rarity);
+    
+      if (cardIndex !== -1) {
+        var card = this.cards[collectionKey][cardIndex].stock.find(card => card.condition == condition);
+        if (card) {
+          // Mettre à jour la carte existante
+          card.quantity = quantity;
+        } else {
+          this.cards[collectionKey][cardIndex].stock.push({quantity, condition})
+        }
+      } else {
+        // Ajouter une nouvelle carte à la collection
+        this.cards[collectionKey].push({ id:id, rarity:rarity, stock:[{quantity, condition}] });
+      }
+    
+      // Enregistrer les modifications dans le stockage local
+      localStorage.setItem('cards', JSON.stringify(this.cards));
+      console.log(this.cards);
     },
   },
 
   getters: {
     isReady: (state) => {
       return !state.isInitialized
+    },
+
+    getUsersSeries: (state) :string[] => {
+      return Object.keys(state.cards);
+    },
+
+    getCard: (state) => {
+      return (colectionId: string, cardId: string, rarity: string) => state.cards[colectionId] ? state.cards[colectionId].find((card) => card.id == cardId && card.rarity == rarity) : null;
+    },
+
+    getQuantity: (state) => {
+      return (colectionId: string, cardId: string, rarity: string) =>
+        state.cards[colectionId]
+          ? state.cards[colectionId].find((card) => card.id == cardId && card.rarity == rarity)?.stock.reduce((total, stock) => {
+                return total + stock.quantity;
+            }, 0)
+          : 0;
+    },
+
+    getStock: (state) => {
+      return (colectionId: string, cardId: string, rarity: string, condition: CardCondition) => {
+        const collection = state.cards[colectionId];
+        const card = collection?.find((card) => card.id == cardId && card.rarity == rarity);
+        const stock = card?.stock;
+
+        return stock?.find(s => s.condition == condition) || null;
+      };
     },
   },
 })

@@ -21,32 +21,27 @@
 
 <script setup lang="ts">
 
-import type { ApiResponse, Collection } from '@/models/PokemonCard';
+import type { Collection } from '@/models/PokemonCard';
+import {SeriesService} from '@/services/SeriesService';
+
 const collections = ref<Collection[]>([]);
 const collectionsBySeries = ref<Record<string, Collection[]>>({});
 
 const fetchCollections = async () => {
   try {
-    const response = await fetch('https://api.pokemontcg.io/v2/sets'); // Remplacez l'URL par votre URL d'API
-    const data: ApiResponse<Collection> = await response.json();
-
-    if (data && data.data && data.data.length > 0) {
-      let collectionsBrut = data.data.sort((a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime());
-      let truc: Record<string, Collection[]> = {};
-      collectionsBrut.forEach(collection => {
-        if (!truc[collection.series]) {
-          truc[collection.series] = [];
-        }
-        truc[collection.series].push(collection);
-      });
-      collectionsBySeries.value = truc
-    } else {
-      console.warn("La réponse de l'API ne contient pas de données de collection.");
-    }
-  } catch (error) {
-    console.error('Erreur lors de la récupération des collections :', error);
+    let temp: Record<string, Collection[]> = {};
+    collections.value = await SeriesService.fetchCollections();
+    collections.value.forEach(collection => {
+      if (!temp[collection.series]) {
+        temp[collection.series] = [];
+      }
+      temp[collection.series].push(collection);
+    });
+    collectionsBySeries.value = temp;
+  } catch (err) {
+    console.error(err);
   }
-}
+};
 
 onMounted(fetchCollections);
 </script>
