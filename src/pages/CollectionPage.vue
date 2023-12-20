@@ -101,15 +101,16 @@
       <select v-model="conditionSelected" @change="updateCondition($event)">
         <option v-for="condition in cardConditions" :key="condition" :value="condition">{{ condition }}</option>
       </select>
-      <span class="absolute right-2 top-0 bottom-0 flex items-center pointer-events-none">
+      <!-- <span class="absolute right-2 top-0 bottom-0 flex items-center pointer-events-none">
         <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
         </svg>
-      </span>
+      </span> -->
     </div>
 
     <!-- Filtrer par rareté -->
     <div v-if="!isLoading && cards.length > 0" class="mt-4">
+      <img :src="cards[0].set.images.logo" alt="Collection Logo" class="h-32 mx-auto mb-2" />
       <label class="block font-medium text-gray-700">Filtrer par rareté :</label>
       <div class="flex space-x-4 mt-2">
         <!-- Bouton pour tout sélectionner -->

@@ -5,6 +5,7 @@
 
   const store = useStore();
   const userSeries = ref<Collection[]>([]);
+  const collectionsRandoms = ref<Collection[]>([]);
   
   const fetchSeriesFromApi = async () => {
     try {
@@ -22,8 +23,20 @@
     }
   };
 
+  const fetchCollectionsRandom = async () => {
+    try {
+      let temp: Collection[] = [];
+      temp = await SeriesService.fetchCollections();
+      temp.sort(() => Math.random() - 0.5);
+      collectionsRandoms.value = temp.slice(0, 7);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const onInit = () => {
     fetchSeriesFromApi();
+    fetchCollectionsRandom();
   };
 
 
@@ -66,6 +79,21 @@
           Explorer d'autres séries
         </button>
       </router-link>
+      <h2 class="text-xl font-semibold mb-2">Séries aléatoires</h2>
+      <div class="flex overflow-x-auto">
+        <div class="grid grid-cols-7 gap-4 flex-shrink-0 min-w-min-content">
+          <div v-for="collection in collectionsRandoms" :key="collection.id" class="bg-gray-100 p-4 mb-4 rounded shadow flex-shrink-0">
+            <router-link :to="{ name: 'Collection', params: { collectionId: collection.id } }">
+              <div class="flex flex-col items-center">
+                <img :src="collection.images.logo" alt="Collection Logo" class="h-16 mb-2" />
+                <h3 class="text-lg font-semibold text-center">{{ collection.name }}</h3>
+              </div>
+            </router-link>
+          </div>
+        </div>
+      </div>
+
+
     </div>
 
     <!-- Sélection aléatoire de séries pour habiller -->
